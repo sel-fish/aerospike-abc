@@ -1,0 +1,14 @@
+print 'register get_trans_sum.lua'
+REGISTER module 'get_trans_sum.lua'
+
+print 'create index u'
+CREATE INDEX auction_u_index ON test.auction(u) STRING
+
+# print 'add records'
+# INSERT INTO test.auction(PK, u, v) VALUES ('1', 'wade', [{ts: 906000490, price: 1, qty: 1}])
+
+print 'select *'
+SELECT * FROM test.auction
+
+print 'run job'
+AGGREGATE get_trans_sum.trans_sum_by_years() ON test.auction
