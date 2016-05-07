@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 
 import thread
 import time
@@ -9,6 +9,7 @@ import json
 delay = 1
 r_ns = 'test'
 r_set = 'queues'
+ascli_path = '/usr/local/bin/ascli'
 
 if len(sys.argv) < 4:
   print 'Usage: messenger.py LOCAL REMOTE MESSAGE'
@@ -39,12 +40,12 @@ def init():
   print '>> received'
   print '<< sent'
   print '==================================='
-  p = Popen(["/usr/bin/ascli", "udf-record-apply", r_ns, r_set, recv_queue, 'mqueue', 'init', local, remote], stdin=PIPE, stdout=PIPE)
-  p = Popen(["/usr/bin/ascli", "udf-record-apply", r_ns, r_set, send_queue, 'mqueue', 'init', remote, local], stdin=PIPE, stdout=PIPE)
+  p = Popen([ascli_path, "udf-record-apply", r_ns, r_set, recv_queue, 'mqueue', 'init', local, remote], stdin=PIPE, stdout=PIPE)
+  p = Popen([ascli_path, "udf-record-apply", r_ns, r_set, send_queue, 'mqueue', 'init', remote, local], stdin=PIPE, stdout=PIPE)
 
 def recv():
   while 1:
-    p = Popen(["/usr/bin/ascli", "udf-record-apply", r_ns, r_set, recv_queue, 'mqueue', 'receive'], stdin=PIPE, stdout=PIPE)
+    p = Popen([ascli_path, "udf-record-apply", r_ns, r_set, recv_queue, 'mqueue', 'receive'], stdin=PIPE, stdout=PIPE)
     output = p.stdout.read()
     messages = json.loads(output)
     if len(messages) > 0 :
@@ -57,7 +58,7 @@ def send():
   msg = "{0} ({1})".format(message, send_count)
   print "<< {0}".format(msg)
   send_count += 1
-  p = Popen(["/usr/bin/ascli", "udf-record-apply", r_ns, r_set, send_queue, 'mqueue', 'send', msg], stdin=PIPE, stdout=PIPE)
+  p = Popen([ascli_path, "udf-record-apply", r_ns, r_set, send_queue, 'mqueue', 'send', msg], stdin=PIPE, stdout=PIPE)
   time.sleep(delay)
 
 try:
