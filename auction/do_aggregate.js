@@ -2,7 +2,6 @@ const Aerospike = require('aerospike')
 
 var namespace='test'
 var set='auction'
-var primary_key="1"
 
 console.log(require.resolve('aerospike'))
 
@@ -25,29 +24,18 @@ client.connect(function (error) {
   } else {
     // handle success
     console.log('Connection to Aerospike cluster succeeded!')
-    do_udf(client)
+    do_aggregate(client)
   }
 })
 
-function do_udf(client) {
-  var key = new Aerospike.Key(namespace, set, primary_key)
-
-	// Record to be written to the database
-	var rec = {
-      u: 'wade',
-      v: [ { t: [ { ts: 906000490, price: 1, qty: 1 } ] } ]
-	}
-
-  var policy = {
-    // key: Aerospike.policy.key.SEND
-  }
-
-	client.put(key, rec, {}, policy, function (error) {
-	  if (error) {
-	      console.log('error: %s', error.message)
-	  } else {
-	    console.log('Record written to database successfully.')
-	  }
-	})
+function do_aggregate(client) {
+  var query = client.query(namespace, set)
+  query.apply('get_trans_sum', 'trans_sum_by_years', [], null, function(error, result) {
+    if (error) {
+      console.log(error)
+    } else {
+      console.log(result)
+    }
+  })
 }
 
